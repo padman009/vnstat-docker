@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@agentdeskai/browser-tools-mcp": "^1.2.0",
-    "node-fetch": "^3.3.2"
-  }
-}
