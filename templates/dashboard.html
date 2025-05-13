@@ -1,0 +1,195 @@
+<html>
+<head>
+    <title>vnStat Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    // Используем те же символы, что и на сервере 
+    // (сервер передает {{ ICON_CLOSED }} и {{ ICON_OPENED }})
+    const ICON_CLOSED = '{{ICON_CLOSED}}'; 
+    const ICON_OPENED = '{{ICON_OPENED}}';
+    
+    function toggleChildren(id) {
+        // Находим все элементы с указанным data-parent
+        const children = document.querySelectorAll('tr[data-parent="'+id+'"]');
+        // Получаем текущее состояние первого элемента (показан/скрыт)
+        const toShow = children.length && children[0].style.display === 'none';
+        
+        // Обновляем иконку
+        const icon = document.querySelector('#'+id+' .toggle-icon');
+        if (icon) {
+            icon.textContent = toShow ? ICON_OPENED : ICON_CLOSED;
+        }
+        
+        // Для каждого дочернего элемента
+        children.forEach(function(el) {
+            // Меняем его видимость
+            el.style.display = toShow ? '' : 'none';
+            
+            // Если скрываем родителя, скрываем и всех его детей рекурсивно
+            if (!toShow) {
+                // Находим иконку и меняем её на "закрыто"
+                const childIcon = el.querySelector('.toggle-icon');
+                if (childIcon) {
+                    childIcon.textContent = ICON_CLOSED;
+                }
+                
+                // Рекурсивно скрываем всех потомков
+                hideAllChildren(el.id);
+            }
+        });
+    }
+    
+    function hideAllChildren(id) {
+        // Находим всех детей и скрываем их
+        const children = document.querySelectorAll('tr[data-parent="'+id+'"]');
+        children.forEach(function(el) {
+            el.style.display = 'none';
+            // Рекурсивно скрываем их детей
+            hideAllChildren(el.id);
+        });
+    }
+    </script>
+    <style>
+        .has-details:hover { background-color: #e8e8e8 !important; }
+        .no-details { opacity: 0.7; }
+        .text-muted { color: #666; font-size: 0.9em; }
+        tr[data-level="year"]    td:first-child { padding-left: 0; }
+        tr[data-level="month"]   td:first-child { padding-left: 1.5rem; }
+        tr[data-level="day"]     td:first-child { padding-left: 3rem; }
+        tr[data-level="hour"]    td:first-child { padding-left: 4.5rem; }
+        tr[data-level="min5"]    td:first-child { padding-left: 6rem; }
+        tr[data-level="year"]    { background: #e0e0e0; }
+        tr[data-level="month"]   { background: #f0f0f0; }
+        tr[data-level="day"]     { background: #f8f8f8; }
+        tr[data-level="hour"]    { background: #fff; }
+        tr[data-level="min5"]    { background: #fff; }
+        .cursor-pointer { cursor: pointer; }
+        .cursor-default { cursor: default; }
+        .toggle-icon { 
+            display: inline-block; 
+            width: 1em; 
+            text-align: center;
+            font-size: 0.8em;
+        }
+        .date-suffix {
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body class="container">
+    <h1 class="mt-4">vnStat Dashboard ({{ interface }})</h1>
+    <h2>Экспериментально: Поминутный мониторинг (5 последних минут)</h2>
+    <table class="table table-sm table-bordered">
+        <thead><tr><th>Минута</th><th>Входящий</th><th>Исходящий</th><th>Всего</th><th>Средняя скорость</th></tr></thead>
+        <tbody>
+        {% for row in min5 %}
+            <tr><td>{{ row.minute }}</td><td>{{ row.rx }}</td><td>{{ row.tx }}</td><td>{{ row.total }}</td><td>{{ row.avg }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <h2>Годовая статистика ({{ years }} {{ 'год' if years == 1 else 'года(лет)' }})</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr><th>Период</th><th>Входящий</th><th>Исходящий</th><th>Всего</th><th>Средняя скорость</th></tr>
+        </thead>
+        <tbody>
+        {% for year, months in stats_tree.items()|sort(reverse=true) %}
+          <tr id="year-{{year}}" data-level="year" class="cursor-pointer has-details" onclick="toggleChildren('year-{{year}}')">
+            <td colspan="5"><span class="toggle-icon" id="icon-year-{{year}}">{{ ICON_CLOSED }}</span> {{year}}</td>
+          </tr>
+          
+          {% for month, days in months.items()|sort(reverse=true) %}
+            {% set has_days = days.keys()|list|length > 1 %}
+            
+            <tr id="month-{{year}}-{{month}}" data-parent="year-{{year}}" data-level="month" 
+                class="cursor-pointer" 
+                onclick="toggleChildren('month-{{year}}-{{month}}')"
+                style="display:none">
+              <td>
+                <span class="toggle-icon">{{ICON_CLOSED}}</span>
+                {{month}} ({{month_names[month]}})
+                {% if not has_days %}
+                    <span class="text-muted">(нет детализации)</span>
+                {% endif %}
+              </td>
+              <td>{{ days._month.rx }}</td>
+              <td>{{ days._month.tx }}</td>
+              <td>{{ days._month.total }}</td>
+              <td>{{ days._month.avg }}</td>
+            </tr>
+            
+            {% for day, hours in days.items()|sort(reverse=true) if day != '_month' %}
+              {% set has_hours = hours.keys()|list|length > 1 %}
+              
+              <tr id="day-{{year}}-{{month}}-{{day}}" data-parent="month-{{year}}-{{month}}" data-level="day"
+                  class="cursor-pointer" 
+                  onclick="toggleChildren('day-{{year}}-{{month}}-{{day}}')"
+                  style="display:none">
+                <td>
+                  <span class="toggle-icon">{{ICON_CLOSED}}</span>
+                  {{day}}<span class="date-suffix">-ое</span>
+                  {% if not has_hours %}
+                      <span class="text-muted">(нет почасовых данных)</span>
+                  {% endif %}
+                </td>
+                <td>{{ hours._day.rx }}</td>
+                <td>{{ hours._day.tx }}</td>
+                <td>{{ hours._day.total }}</td>
+                <td>{{ hours._day.avg }}</td>
+              </tr>
+              
+              {% for hour, min5s in hours.items()|sort(reverse=true) if hour != '_day' %}
+                {% set min5_items = [] %}
+                {% set has_min5 = min5s.keys()|list|length > 1 %}
+                {% if has_min5 %}
+                  {% for min5 in min5s.values() if min5 is mapping and min5.minute is defined %}
+                    {% set _ = min5_items.append(min5) %}
+                  {% endfor %}
+                  {% set has_min5 = min5_items|length > 0 %}
+                {% endif %}
+                
+                <tr id="hour-{{year}}-{{month}}-{{day}}-{{hour}}" data-parent="day-{{year}}-{{month}}-{{day}}" data-level="hour"
+                    class="{{ 'cursor-pointer' if has_min5 else 'no-details cursor-default' }}"
+                    {% if has_min5 %}onclick="toggleChildren('hour-{{year}}-{{month}}-{{day}}-{{hour}}')"{% endif %}
+                    style="display:none">
+                  <td>
+                    <span class="toggle-icon">{% if has_min5 %}{{ICON_OPENED}}{% endif %}</span>
+                    {{hour}}:00
+                    {% if not has_min5 %}
+                        <span class="text-muted">(нет 5-минутных данных)</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ min5s._hour.rx }}</td>
+                  <td>{{ min5s._hour.tx }}</td>
+                  <td>{{ min5s._hour.total }}</td>
+                  <td>{{ min5s._hour.avg }}</td>
+                </tr>
+                
+                {% for min5 in min5_items|sort(attribute='minute', reverse=true) %}
+                  <tr id="min5-{{year}}-{{month}}-{{day}}-{{hour}}-{{min5.minute}}" 
+                      data-parent="hour-{{year}}-{{month}}-{{day}}-{{hour}}" 
+                      data-level="min5" 
+                      style="display:none">
+                    <td>{{ min5.minute }}</td>
+                    <td>{{ min5.rx }}</td>
+                    <td>{{ min5.tx }}</td>
+                    <td>{{ min5.total }}</td>
+                    <td>{{ min5.avg }}</td>
+                  </tr>
+                {% endfor %}
+                
+              {% endfor %}
+            {% endfor %}
+          {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if has_more_years %}
+    <form method="get" action="/">
+        <input type="hidden" name="years" value="{{ years + 1 }}">
+        <button class="btn btn-secondary">Показать ещё год</button>
+    </form>
+    {% endif %}
+</body>
+</html> 

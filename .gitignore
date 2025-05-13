@@ -1,0 +1,52 @@
+# Байткод Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Виртуальное окружение
+venv/
+ENV/
+env/
+
+# Логи и временные файлы
+*.log
+*.pot
+*.pyc
+logs/
+tmp/
+.DS_Store
+vnstat_dashboard.log
+
+# Node.js
+node_modules/
+package-lock.json
+yarn.lock
+
+# Файлы IDE и редакторов
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Файлы специфичные для проекта
+# Закомментируйте, если нужно включить
+# config.py
+.env 
