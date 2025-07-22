@@ -1,0 +1,101 @@
+MIT License
+
+Copyright (c) 2024 vnStat Dashboard Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Third-Party Licenses
+
+This project includes or depends on the following third-party software:
+
+### Flask
+- License: BSD-3-Clause
+- Copyright: 2010 Pallets
+- URL: https://flask.palletsprojects.com/
+
+### Werkzeug
+- License: BSD-3-Clause
+- Copyright: 2007 Pallets
+- URL: https://werkzeug.palletsprojects.com/
+
+### Jinja2
+- License: BSD-3-Clause
+- Copyright: 2007 Pallets
+- URL: https://jinja.palletsprojects.com/
+
+### Bootstrap (via CDN)
+- License: MIT
+- Copyright: 2011-2023 The Bootstrap Authors
+- URL: https://getbootstrap.com/
+
+### jQuery (via CDN)
+- License: MIT
+- Copyright: OpenJS Foundation and other contributors
+- URL: https://jquery.com/
+
+### vnStat
+- License: GPL-2.0
+- Copyright: Teemu Toivola
+- URL: https://humdi.net/vnstat/
+- Note: This project interfaces with vnStat but does not include its source code
+
+---
+
+## Security Disclosure
+
+For security vulnerabilities, please follow responsible disclosure:
+
+1. Do not open public issues for security vulnerabilities
+2. Email security concerns to the project maintainers
+3. Allow reasonable time for fixes before public disclosure
+4. Coordinate disclosure timing with maintainers
+
+---
+
+## Contributing
+
+By contributing to this project, you agree that your contributions will be 
+licensed under the same MIT License that covers the project. You also certify
+that you have the right to submit your contribution under this license.
+
+---
+
+## Attribution
+
+If you use this software in your project, attribution is appreciated but not
+required. You may include a notice such as:
+
+"This project uses vnStat Dashboard (https://github.com/example/vnstat-dashboard)"
+
+---
+
+## Disclaimer
+
+This software is provided for monitoring network traffic statistics. Users are
+responsible for:
+
+- Ensuring compliance with local laws and regulations
+- Proper security configuration and deployment
+- Regular updates and security patches
+- Appropriate access controls and permissions
+
+The maintainers are not responsible for any misuse of this software or any
+security incidents resulting from improper configuration or deployment.
